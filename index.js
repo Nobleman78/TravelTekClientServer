@@ -42,7 +42,7 @@ async function run() {
                 role: userInDb.role,
             };
 
-            const token = jwt.sign(tokenPayload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign(tokenPayload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
             res.send({ token });
         });
 
