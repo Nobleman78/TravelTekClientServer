@@ -108,7 +108,6 @@ async function run() {
             res.send(result);
         });
 
-
         // Client Related APIs
         // app.post('/client-information', async (req, res) => {
         //     const clientInfo = req.body;
