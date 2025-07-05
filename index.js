@@ -110,16 +110,72 @@ async function run() {
 
 
         // Client Related APIs
+        // app.post('/client-information', async (req, res) => {
+        //     const clientInfo = req.body;
+
+        //     const timestampedClient = {
+        //         ...clientInfo,
+        //         createdAt: new Date().toISOString()
+        //     };
+
+        //     const result = await clientCollection.insertOne(timestampedClient);
+        //     res.send(result);
+        // });
         app.post('/client-information', async (req, res) => {
             const clientInfo = req.body;
+            const { name, phone, purpose } = clientInfo;
 
-            const timestampedClient = {
-                ...clientInfo,
-                createdAt: new Date().toISOString()
-            };
+            try {
+                // Step 1: Check if phone number already exists
+                const existingClient = await clientCollection.findOne({ phone });
 
-            const result = await clientCollection.insertOne(timestampedClient);
-            res.send(result);
+                if (existingClient) {
+                    // Step 2: If purpose is different, update it
+                    if (existingClient.purpose !== purpose) {
+                        const updateResult = await clientCollection.updateOne(
+                            { phone },
+                            {
+                                $set: {
+                                    purpose: purpose,
+                                    updatedAt: new Date().toISOString()
+                                }
+                            }
+                        );
+
+                        return res.send({
+                            message: 'Purpose updated for existing client.',
+                            updated: true,
+                            result: updateResult
+                        });
+                    } else {
+                        // Step 3: Same phone + same purpose => do not insert
+                        return res.status(400).send({
+                            message: 'Client with same phone and purpose already exists.',
+                            duplicate: true
+                        });
+                    }
+                }
+
+                // Step 4: If not found, insert as new
+                const timestampedClient = {
+                    name,
+                    phone,
+                    purpose,
+                    createdAt: new Date().toISOString()
+                };
+
+                const result = await clientCollection.insertOne(timestampedClient);
+
+                res.send({
+                    message: 'New client added successfully.',
+                    inserted: true,
+                    result
+                });
+
+            } catch (error) {
+                console.error('Error in /client-information:', error);
+                res.status(500).send({ error: 'Server error occurred.' });
+            }
         });
 
 
