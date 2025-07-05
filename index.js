@@ -123,17 +123,17 @@ async function run() {
         // });
         app.post('/client-information', async (req, res) => {
             const clientInfo = req.body;
-            const { name, phone, purpose } = clientInfo;
+            const { name, phoneNumber, purpose } = clientInfo;
 
             try {
-                // Step 1: Check if phone number already exists
-                const existingClient = await clientCollection.findOne({ phone });
+                // Step 1: Check if phoneNumber number already exists
+                const existingClient = await clientCollection.findOne({ phoneNumber });
 
                 if (existingClient) {
                     // Step 2: If purpose is different, update it
                     if (existingClient.purpose !== purpose) {
                         const updateResult = await clientCollection.updateOne(
-                            { phone },
+                            { phoneNumber },
                             {
                                 $set: {
                                     purpose: purpose,
@@ -148,9 +148,9 @@ async function run() {
                             result: updateResult
                         });
                     } else {
-                        // Step 3: Same phone + same purpose => do not insert
+                        // Step 3: Same phoneNumber + same purpose => do not insert
                         return res.status(400).send({
-                            message: 'Client with same phone and purpose already exists.',
+                            message: 'Client with same phoneNumber and purpose already exists.',
                             duplicate: true
                         });
                     }
@@ -159,7 +159,7 @@ async function run() {
                 // Step 4: If not found, insert as new
                 const timestampedClient = {
                     name,
-                    phone,
+                    phoneNumber,
                     purpose,
                     createdAt: new Date().toISOString()
                 };
