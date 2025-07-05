@@ -131,7 +131,7 @@ async function run() {
 
                 if (existingClient) {
                     // Step 2: If purpose is different, update it
-                    if (existingClient.purpose !== purpose) {
+                    if (existingClient.purpose.trim().toLowerCase() !== purpose.trim().toLowerCase()) {
                         const updateResult = await clientCollection.updateOne(
                             { phoneNumber },
                             {
@@ -148,7 +148,7 @@ async function run() {
                             result: updateResult
                         });
                     } else {
-                        // Step 3: Same phoneNumber + same purpose => do not insert
+
                         return res.status(400).send({
                             message: 'Client with same phoneNumber and purpose already exists.',
                             duplicate: true
